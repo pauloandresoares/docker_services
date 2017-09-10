@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  postgresserver:
+    image: postgres
+    restart: always
+    ports:
+       - 5432:5432
+    environment:
+         POSTGRES_PASSWORD: abcd1234
+    volumes:
+       - pgdata:/var/lib/postgresql/data
+    networks:
+       - mynetwork
+
+  rabbit1:
+    image: "rabbitmq:3-management"
+    hostname: "rabbit1"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+      RABBITMQ_DEFAULT_USER: "rabbitmq"
+      RABBITMQ_DEFAULT_PASS: "rabbitmq"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    labels:
+      NAME: "rabbitmq1"
+    volumes:
+      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins 
+    networks:
+      - mynetwork          
+volumes:
+  pgdata:
+
+networks:
+  mynetwork:
+     driver: bridge
