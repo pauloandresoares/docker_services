@@ -10,6 +10,13 @@ RUN apt-get update && apt-get install -y software-properties-common language-pac
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+#Composer
+RUN curl -sS https://getcomposer.org/installer | php \
+        && mv composer.phar /usr/local/bin/ \
+        && ln -s /usr/local/bin/composer.phar /usr/local/bin/composer
+
+
+
 RUN sed -i -e 's/listen = \/run\/php\/php7.0-fpm.sock/listen = 0.0.0.0:9000/g' /etc/php/7.0/fpm/pool.d/www.conf \
     && sed -i -e 's/;daemonize = yes/daemonize = no/g' /etc/php/7.0/fpm/php-fpm.conf
 
@@ -18,3 +25,4 @@ WORKDIR /var/app
 EXPOSE 9000
 
 CMD ["/usr/bin/supervisord"]
+
