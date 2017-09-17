@@ -1,19 +1,76 @@
 version: '3'
 
 services:
+  web:
+    container_name: nginx
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    build:
+      context: ./nginx
+    volumes:
+      - ./app:/var/app
+      - ${PROJECTS_PATH}:/var/www/html
+      - ./nginx/conf:/etc/nginx/conf.d
+     
+    networks:
+      - mynetwork
+  php:
+    container_name: php7
+    image: php:fpm
+    build:
+      context: ./fpm
+    volumes:
+      - ./app:/var/app
+      - ${PROJECTS_PATH}:/var/www/html
+    expose:
+      - "9000"
+    networks:
+      - mynetwork
+
+  elasticsearch1:
+    container_name: elasticsearch
+    image: elasticsearch:latest
+    ports:
+      - 9200:9200
+    networks:
+      - mynetwork  
+
   postgresserver:
+    container_name: postgres
     image: postgres
     restart: always
     ports:
-       - 5432:5432
+      - 5432:5432
     environment:
          POSTGRES_PASSWORD: abcd1234
     volumes:
-       - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     networks:
-       - mynetwork
+      - mynetwork
+  
+  Memcached:
+    container_name: memcache
+    image: memcached:latest
+    ports:
+      - "11211:11211"
+    restart: always
 
+  mssql:
+    container_name: mssql
+    image: microsoft/mssql-server-linux
+    user: $UID
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: Password1
+    ports:
+      - 1433:1433
+    volumes:
+      - mssqldata:/var/opt/mssql
+    networks:
+      - mynetwork
   rabbit1:
+    container_name: rabbitmq
     image: "rabbitmq:3-management"
     hostname: "rabbit1"
     environment:
@@ -29,10 +86,10 @@ services:
     volumes:
       - ./enabled_plugins:/etc/rabbitmq/enabled_plugins 
     networks:
-      - mynetwork          
+      - mynetwork  
 volumes:
   pgdata:
-
+  mssqldata:
 networks:
   mynetwork:
      driver: bridge
