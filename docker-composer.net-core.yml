@@ -1,0 +1,14 @@
+version: '3'
+services:
+  netcore_task:
+    container_name: netcore_task
+    build: ./api
+    restart: always
+    environment:
+      - ASPNETCORE_URLS=http://siscontask:5000
+    ports:
+      - "5000:5000"
+    depends_on:
+     - postgres
+    links:
+     - postgres
